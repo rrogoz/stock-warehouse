@@ -53,6 +53,12 @@ def test_change_rejects_branch_key_that_differs_from_title() -> None:
     assert errors == ["branch key SW-13 differs from title key SW-12"]
 
 
+def test_change_rejects_session_branches_after_m0() -> None:
+    title = "feat(connectors): add NBP connector [SW-12]"
+    errors = change.check(title, "claude/project-thread-abc123", BODY)
+    assert any("branch" in e for e in errors)
+
+
 def test_docs_slug_matches_github_anchors() -> None:
     assert docs.slug("Stage 2 requirements") == "stage-2-requirements"
     assert docs.slug("What standards must guarantee?") == "what-standards-must-guarantee"

@@ -1,0 +1,80 @@
+# Shared agent runner (ADR-011): one role, one story, one fresh run on Rafal's
+# subscription. Called by agent-refine, agent-spec, agent-implement and agent-fix;
+# the review agent has its own workflow. Runbook: docs/runbooks/run-an-agent.md
+name: agent
+
+on:
+  workflow_call:
+    inputs:
+      role: { type: string, required: true } # refine, spec, implement, fix
+      skill: { type: string, required: true }
+      jira_role: { type: string, required: true } # the role the Jira script allows
+      story: { type: string, default: "" }
+      pr: { type: string, default: "" }
+      model: { type: string, required: true }
+      max_turns: { type: number, required: true }
+      timeout_minutes: { type: number, required: true }
+      tools: { type: string, required: true }
+      task: { type: string, required: true }
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: { required: true }
+      JIRA_API_TOKEN: { required: true }
+
+jobs:
+  prepare:
+    name: limits
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      story: ${{ steps.prepare.outputs.story }}
+      pr: ${{ steps.prepare.outputs.pr }}
+      branch: ${{ steps.prepare.outputs.branch }}
+    steps:
+      - uses: actions/checkout@v4
+      # Pause switch, main only, valid story or pull request, spec on main, review rounds.
+      - id: prepare
+        run: python3 .github/scripts/agent_prepare.py --role "$ROLE" --story "$STORY" --pr "$PR"
+        env:
+          ROLE: ${{ inputs.role }}
+          STORY: ${{ inputs.story }}
+          PR: ${{ inputs.pr }}
+          SW_AGENTS_PAUSED: ${{ vars.SW_AGENTS_PAUSED }}
+          GITHUB_TOKEN: ${{ github.token }}
+
+  run:
+    name: ${{ inputs.role }} ${{ needs.prepare.outputs.story }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout_minutes }}
+    # One run per story at a time; a second one waits.
+    concurrency:
+      group: agent-${{ needs.prepare.outputs.story }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.branch || 'main' }}
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.32"
+      # Builder agents act as the Claude GitHub App (OIDC), never with Rafal's credentials.
+      - uses: anthropics/claude-code-action@v1
+        env:
+          JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ vars.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Act as the ${{ inputs.role }} agent of Stock Warehouse in repository ${{ github.repository }}.
+            Read AGENTS.md, then load the skill `${{ inputs.skill }}` and follow it.
+            Story: ${{ needs.prepare.outputs.story }}. Pull request: ${{ needs.prepare.outputs.pr || 'none' }}.
+            Task: ${{ inputs.task }}
+            Reach Jira only through `python3 .github/scripts/jira.py ... --role ${{ inputs.jira_role }}`.
+            If you are blocked or the work needs a decision, stop and say why (on the pull request if
+            there is one, otherwise as a Jira comment). Never work around a limit or a check.
+          claude_args: >-
+            --model ${{ inputs.model }}
+            --max-turns ${{ inputs.max_turns }}
+            --allowedTools "${{ inputs.tools }}"

@@ -13,8 +13,6 @@ import sys
 TYPES = ("feat", "fix", "docs", "test", "refactor", "chore", "ci")
 TITLE = re.compile(rf"^(?:{'|'.join(TYPES)})(?:\([a-z0-9-]+\))?: \S.* \[(SW-\d+)\]$")
 BRANCH = re.compile(r"^(SW-\d+)-[a-z0-9-]+$")
-# M0 only: build sessions push to claude/project-thread-* branches. Removed in SW-9.
-BOOTSTRAP_BRANCH = re.compile(r"^claude/project-thread-[a-z0-9]+$")
 SECTIONS = ("What", "Why", "How it was tested", "Docs changed", "Definition of Done")
 COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
 
@@ -45,7 +43,7 @@ def check(title: str, branch: str, body: str) -> list[str]:
     if branch_match:
         if key and branch_match.group(1) != key:
             errors.append(f"branch key {branch_match.group(1)} differs from title key {key}")
-    elif not BOOTSTRAP_BRANCH.match(branch):
+    else:
         errors.append(f"branch {branch!r} is not '<story key>-short-title', e.g. SW-12-nbp")
     if key and f"browse/{key}" not in body:
         errors.append(f"description does not link the story {key}")

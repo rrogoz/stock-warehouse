@@ -15,7 +15,7 @@ Status: M0 Foundations. Start with the [overview](docs/overview.md), then [princ
 | `reference/` | instrument register, calendars |
 | `dbt/` | macros, staging, silver, gold, tests |
 | `tests/` | `unit/`, `contract/`, `integration/`, `fixtures/` |
-| `.github/` | workflows, their scripts (checks, Jira script, consistency check, metrics report) and the pull request template |
+| `.github/` | workflows (checks, agents), their scripts (checks, agent limits, Jira script, consistency check, metrics report), the pull request template and code owners |
 | `.claude/skills/` | agent skills: one per role, one per standard ([ADR-011](docs/adr/0011-agent-orchestration.md)) |
 
 Code only: data never lives in this repository.
@@ -55,12 +55,16 @@ CI runs on every pull request and on main ([ADR-008](docs/adr/0008-ci-cd-and-rel
 | `ci`, docker | the image builds and runs |
 | `change`, change conventions | title, branch and description follow the [change conventions](docs/standards/change-conventions.md) |
 
-The description follows the [pull request template](.github/pull_request_template.md). Making the checks required is SW-9.
+The description follows the [pull request template](.github/pull_request_template.md). The four checks are required on main, with an approval and code owners ([`.github/CODEOWNERS`](.github/CODEOWNERS)); the settings are in the [switch on protection](docs/runbooks/switch-on-protection.md) runbook.
 
 | Workflow | When | Does |
 | --- | --- | --- |
 | `consistency` | daily, 06:00 UTC | fails when a story is In progress without a spec on main, Done without a merged and released pull request, or the last weekday's PROD run (`prod-run.yml`, from M1) did not succeed ([ADR-010](docs/adr/0010-tracker-and-story-workflow.md)); `bootstrap` stories are exempt |
 | `metrics` | Mondays, 07:00 UTC | per story merged in the last 7 days: review rounds and time from Ready to merge, in the job summary; the other metrics arrive in M1 |
+
+## Agents
+
+Each role is a one-click workflow (`agent-refine`, `agent-spec`, `agent-implement`, `agent-review`, `agent-fix`) on Rafal's Claude subscription ([ADR-011](docs/adr/0011-agent-orchestration.md)). `agent.yml` runs the builder roles as the Claude GitHub App; the review agent reads the change with a read-only token and its verdict is posted as `rrogoz-sw-review`. Before every run `.github/scripts/agent_prepare.py` enforces the limits: pause switch `SW_AGENTS_PAUSED`, main only, spec on main for implementation, at most three review rounds. Models, turn and time limits per role, and how to start or pause: [run an agent](docs/runbooks/run-an-agent.md).
 
 ## Jira script
 
