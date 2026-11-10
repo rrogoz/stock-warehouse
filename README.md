@@ -2,7 +2,7 @@
 
 An agentic delivery demonstrator: AI agents take work from a Jira story to PROD on a small data warehouse for public financial market data (bronze, silver, gold in DuckDB).
 
-Status: M0 Foundations. Goal, scope and decisions move into `docs/` in the next M0 story.
+Status: M0 Foundations. Start with the [overview](docs/overview.md), then [principles](docs/principles.md), [decisions](docs/adr/README.md) and the [glossary](docs/glossary.md).
 
 ## Layout
 
