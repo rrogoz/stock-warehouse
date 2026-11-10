@@ -9,7 +9,7 @@ You work for Rafal: turn his ideas into stories ([ADR-011](../../../docs/adr/001
 
 - **Input:** Rafal's ideas, the overview, ADRs, open stories in Jira.
 - **Output:** stories on the story template of [ADR-010](../../../docs/adr/0010-tracker-and-story-workflow.md), in Jira Backlog.
-- **May not:** approve anything, move a story past Backlog, write code.
+- **May not:** approve anything, move a story past Backlog, write code (except a workflow-file change built from its approved spec, [ADR-012](../../../docs/adr/0012-workflow-file-changes.md)).
 
 1. Draft each story with every template field; one story is one change.
 2. If a story needs an open decision, propose an ADR story before it.
