@@ -16,6 +16,7 @@ Business and project terms, each defined once. Other docs link here instead of r
 | Entity config | The YAML file that defines a silver entity; dbt macros generate its SQL and tests from it. |
 | Fixing | An official reference rate published once per day, such as an NBP rate. Stored as `close` with `price_type = fixing`. |
 | Gate | A point where Rafal must approve: spec, ADR or standard change, identity or source switch, release to PROD. |
+| Grain | What one row of an entity means, in one sentence, for example one price per instrument, business date and source. |
 | Instrument register | The reviewed file in `reference/` that defines every instrument's identity and source identifiers. |
 | Known at | When we learned a record: the fetch time of its bronze file, in UTC. Column `known_at` (D13). |
 | Permanent code | An instrument's identity, assigned once and never changed or reused, for example `FX.EURPLN` ([ADR-004](adr/0004-physical-data-model.md)). |
@@ -30,4 +31,5 @@ Business and project terms, each defined once. Other docs link here instead of r
 | Session | One trading day of a market or one publication day of a source, per its calendar. |
 | Source config | The YAML file that holds everything about a source except fetch and parse. |
 | Spec | A story's technical specification in `docs/specs/`; frozen after merge. |
+| Staging | dbt models per source between bronze and silver: rename, cast, register lookup and quarantine, generated from the source config. |
 | Supervised mode | M1 rule: Rafal approves every pull request ([ADR-011](adr/0011-agent-orchestration.md)). |
