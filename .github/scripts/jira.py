@@ -46,7 +46,8 @@ TAGS = {
     "ci": "ci",
 }
 VERDICTS = ("ready", "questions", "split")
-VERDICT_FIELD = "Refinement verdict"
+VERDICT_FIELD = "Refinement verdict"  # dropdown with one option per verdict
+REASON_FIELD = "Verdict reason"  # paragraph
 
 
 class JiraError(Exception):
@@ -59,6 +60,16 @@ def allowed(role: str, status: str) -> bool:
 
 def tagged(role: str, body: str) -> str:
     return f"[{TAGS[role]}] {body.strip()}"
+
+
+def option_for(verdict: str, options: list[str]) -> str:
+    """The dropdown option for a verdict, matched without regard to case."""
+    match = [option for option in options if option.strip().casefold() == verdict]
+    if not match:
+        raise JiraError(
+            f"field {VERDICT_FIELD!r} has no option {verdict!r} (options: {', '.join(options)})"
+        )
+    return match[0]
 
 
 def check_key(key: str) -> str:
@@ -143,12 +154,16 @@ class Jira:
         if verdict not in VERDICTS:
             raise JiraError(f"verdict must be one of {', '.join(VERDICTS)}")
         fields = self.call("GET", "/rest/api/2/field")
-        field = next((f["id"] for f in fields if f.get("name") == VERDICT_FIELD), None)
-        if field is None:
-            raise JiraError(f"Jira has no field {VERDICT_FIELD!r}; Rafal creates it once")
-        text = f"{verdict}: {reason.strip()}"
-        self.call("PUT", f"/rest/api/2/issue/{check_key(key)}", {"fields": {field: text}})
-        self.comment(key, "refine", f"Verdict: {text}")
+        ids = {f.get("name"): f["id"] for f in fields}
+        missing = [name for name in (VERDICT_FIELD, REASON_FIELD) if name not in ids]
+        if missing:
+            raise JiraError(f"Jira has no field {', '.join(missing)}; Rafal creates it once")
+        meta = self.call("GET", f"/rest/api/2/issue/{check_key(key)}/editmeta")["fields"]
+        allowed = meta.get(ids[VERDICT_FIELD], {}).get("allowedValues", [])
+        option = option_for(verdict, [str(value.get("value", "")) for value in allowed])
+        update = {ids[VERDICT_FIELD]: {"value": option}, ids[REASON_FIELD]: reason.strip()}
+        self.call("PUT", f"/rest/api/2/issue/{check_key(key)}", {"fields": update})
+        self.comment(key, "refine", f"Verdict: {option}. {reason.strip()}")
 
     def move(self, key: str, status: str, role: str) -> None:
         if not allowed(role, status):
