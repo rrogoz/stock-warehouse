@@ -1,0 +1,29 @@
+# Secrets: copy .env.example to .env and never commit it
+.env
+
+# Python and tools
+.venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+
+# Data never lives in the repository (A4.6)
+data/
+*.duckdb
+*.duckdb.wal
+*.parquet
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
