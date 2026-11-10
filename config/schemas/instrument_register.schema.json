@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "instrument_register.schema.json",
+  "title": "Instrument register",
+  "description": "Validates reference/instrument_register.yaml: every instrument's identity and source identifiers (ADR-004). Each fact that can change is a list of versions, newest last, so the register is point in time.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "instruments"],
+  "properties": {
+    "version": {
+      "description": "Version of the register format.",
+      "const": 1
+    },
+    "instruments": {
+      "description": "Instruments keyed by permanent code, assigned once and never changed or reused. FX codes are FX.<base><quote> in ISO 4217; other asset-class patterns are added with their first instrument.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^FX\\.[A-Z]{3}[A-Z]{3}$" },
+      "additionalProperties": { "$ref": "#/$defs/instrument" }
+    }
+  },
+  "$defs": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "valid_from_date": {
+      "$ref": "#/$defs/date",
+      "description": "First date the fact holds, ISO date, quoted so YAML keeps it a string."
+    },
+    "recorded_date": {
+      "$ref": "#/$defs/date",
+      "description": "Date the fact was written to the register, ISO date, quoted so YAML keeps it a string."
+    },
+    "instrument": {
+      "description": "One instrument: its attribute versions and its source identifiers.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["versions", "source_ids"],
+      "properties": {
+        "versions": {
+          "description": "Attribute versions, insert-only, in ascending valid_from_date order (newest last).",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/version" }
+        },
+        "source_ids": {
+          "description": "Identifier map: one entry per source and version, in ascending valid_from_date order (newest last).",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/source_id" }
+        }
+      }
+    },
+    "version": {
+      "description": "The instrument's attributes from valid_from_date on.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["valid_from_date", "recorded_date", "current_symbol", "asset_class", "quote_ccy"],
+      "properties": {
+        "valid_from_date": { "$ref": "#/$defs/valid_from_date" },
+        "recorded_date": { "$ref": "#/$defs/recorded_date" },
+        "current_symbol": {
+          "description": "Symbol shown today; FX: base and quote currency without separator, for example EURPLN.",
+          "type": "string",
+          "minLength": 1
+        },
+        "asset_class": {
+          "description": "Asset class of the instrument.",
+          "enum": ["fx"]
+        },
+        "exchange": {
+          "description": "MIC of the listing exchange; FX pairs have none.",
+          "type": "string",
+          "pattern": "^[A-Z0-9]{4}$"
+        },
+        "quote_ccy": {
+          "description": "Currency of the price, ISO 4217; 'currency' in ADR-004.",
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        }
+      }
+    },
+    "source_id": {
+      "description": "The identifier one source uses for the instrument from valid_from_date on.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "source_instrument_id", "valid_from_date", "recorded_date"],
+      "properties": {
+        "source": {
+          "description": "Source name, as in its source config (config/sources/<source>.yaml).",
+          "enum": ["nbp"]
+        },
+        "source_instrument_id": {
+          "description": "The source's own identifier; NBP: table and code, as in /api/exchangerates/rates/A/EUR/.",
+          "type": "string",
+          "minLength": 1
+        },
+        "valid_from_date": { "$ref": "#/$defs/valid_from_date" },
+        "recorded_date": { "$ref": "#/$defs/recorded_date" }
+      }
+    }
+  }
+}

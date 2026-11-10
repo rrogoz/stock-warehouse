@@ -1,0 +1,40 @@
+# Instrument register: identity and source identifiers (ADR-004). Changes need Rafal's approval.
+# Schema and field meanings: config/schemas/instrument_register.schema.json.
+version: 1
+instruments:
+  FX.EURPLN:
+    versions:                       # attributes, insert-only; newest last
+      - valid_from_date: "2002-01-02"
+        recorded_date: "2026-11-10"
+        current_symbol: EURPLN
+        asset_class: fx
+        quote_ccy: PLN
+    source_ids:                     # identifier map, one entry per source and version
+      - source: nbp
+        source_instrument_id: A/EUR
+        valid_from_date: "2002-01-02"
+        recorded_date: "2026-11-10"
+  FX.USDPLN:
+    versions:
+      - valid_from_date: "2002-01-02"
+        recorded_date: "2026-11-10"
+        current_symbol: USDPLN
+        asset_class: fx
+        quote_ccy: PLN
+    source_ids:
+      - source: nbp
+        source_instrument_id: A/USD
+        valid_from_date: "2002-01-02"
+        recorded_date: "2026-11-10"
+  FX.CHFPLN:
+    versions:
+      - valid_from_date: "2002-01-02"
+        recorded_date: "2026-11-10"
+        current_symbol: CHFPLN
+        asset_class: fx
+        quote_ccy: PLN
+    source_ids:
+      - source: nbp
+        source_instrument_id: A/CHF
+        valid_from_date: "2002-01-02"
+        recorded_date: "2026-11-10"
