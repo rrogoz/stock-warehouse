@@ -180,3 +180,27 @@ def test_report_rows_and_empty_week() -> None:
     since = datetime(2026, 11, 3, tzinfo=UTC)
     assert "No stories merged" in metrics.report([], since)
     assert metrics.HEADER in metrics.report([line], since)
+
+
+def test_verdict_sets_dropdown_option_and_reason() -> None:
+    fake = FakeJira(
+        {
+            ("GET", "/rest/api/2/field"): [
+                {"id": "customfield_1", "name": "Refinement verdict"},
+                {"id": "customfield_2", "name": "Verdict reason"},
+            ],
+            ("GET", "/rest/api/2/issue/SW-12/editmeta"): {
+                "fields": {"customfield_1": {"allowedValues": [{"value": "Ready"}]}}
+            },
+        }
+    )
+    fake.verdict("SW-12", "ready", " All fields present. ")
+    put = [c for c in fake.calls if c[0] == "PUT"][0]
+    assert put[2] == {
+        "fields": {"customfield_1": {"value": "Ready"}, "customfield_2": "All fields present."}
+    }
+
+
+def test_verdict_refuses_unknown_option() -> None:
+    with pytest.raises(jira.JiraError, match="no option 'split'"):
+        jira.option_for("split", ["Ready", "Questions"])

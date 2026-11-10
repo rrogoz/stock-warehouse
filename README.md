@@ -73,7 +73,7 @@ Agents, CI and the planning assistant reach Jira only through `.github/scripts/j
 ```sh
 python3 .github/scripts/jira.py get SW-12
 python3 .github/scripts/jira.py comment SW-12 --role refine --body "..."  # posted as "[refinement] ..."
-python3 .github/scripts/jira.py verdict SW-12 --verdict ready --reason "..."  # field "Refinement verdict"
+python3 .github/scripts/jira.py verdict SW-12 --verdict ready --reason "..."  # dropdown "Refinement verdict" and paragraph "Verdict reason"
 python3 .github/scripts/jira.py move SW-12 "Ready" --role refine
 python3 .github/scripts/jira.py push stories.json --role plan  # create, or update Backlog stories
 ```
