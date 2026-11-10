@@ -1,0 +1,31 @@
+# Fix agent (ADR-011): answers review findings and red CI with commits on the same pull request.
+name: agent-fix
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr: { description: "Pull request number", required: true }
+      model: { description: "Model", type: choice, options: [haiku, sonnet, opus], default: haiku }
+
+permissions:
+  contents: read
+  id-token: write # Claude GitHub App token
+  pull-requests: read
+
+jobs:
+  fix:
+    uses: ./.github/workflows/agent.yml
+    secrets: inherit
+    with:
+      role: fix
+      skill: role-implement
+      jira_role: implement
+      pr: ${{ inputs.pr }}
+      model: ${{ inputs.model }}
+      max_turns: 40
+      timeout_minutes: 30
+      tools: "Read,Glob,Grep,Write,Edit,Bash(git *),Bash(uv *),Bash(python3 .github/scripts/*),Bash(gh pr view *),Bash(gh pr diff *),Bash(gh pr checks *),Bash(gh pr comment *),Bash(gh run view *),Bash(gh api repos/${{ github.repository }}/pulls/*)"
+      task: >-
+        Follow the Fix step: read the latest review and the CI results, answer each finding with
+        a commit on the checked-out pull request branch or a reply saying why not, run the README
+        checks, and push. Never open a new pull request.

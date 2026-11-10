@@ -1,0 +1,30 @@
+# Spec agent (ADR-011): pull request adding docs/specs/<story>.md; story to Spec review.
+name: agent-spec
+
+on:
+  workflow_dispatch:
+    inputs:
+      story: { description: "Story key, e.g. SW-12", required: true }
+      model: { description: "Model", type: choice, options: [opus, sonnet], default: opus }
+
+permissions:
+  contents: read
+  id-token: write # Claude GitHub App token
+
+jobs:
+  spec:
+    uses: ./.github/workflows/agent.yml
+    secrets: inherit
+    with:
+      role: spec
+      skill: role-spec
+      jira_role: spec
+      story: ${{ inputs.story }}
+      model: ${{ inputs.model }}
+      max_turns: 40
+      timeout_minutes: 20
+      tools: "Read,Glob,Grep,Write,Edit,Bash(git *),Bash(python3 .github/scripts/*),Bash(gh pr create *),Bash(gh pr view *)"
+      task: >-
+        Write docs/specs/<story>.md on a new branch <story>-spec, run
+        `python3 .github/scripts/check_docs.py`, push, open the pull request
+        `docs(specs): add spec [<story>]` on the template, then move the story to Spec review.

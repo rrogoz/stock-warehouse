@@ -1,0 +1,14 @@
+# Code owners (ADR-008): a change touching these paths needs Rafal's approval.
+# Last matching line wins; every line names the same owner.
+
+# Supervised mode (ADR-011): Rafal approves every pull request through M1.
+# Remove this line in M2, once the metrics justify it.
+* @rrogoz
+
+# Rafal's gates, always.
+/docs/adr/ @rrogoz
+/docs/standards/ @rrogoz
+/docs/specs/ @rrogoz
+/reference/ @rrogoz
+/config/sources/ @rrogoz
+/.github/ @rrogoz

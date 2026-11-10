@@ -54,6 +54,8 @@ def test_roles_move_only_to_their_states() -> None:
     assert not jira.allowed("refine", "Done")
     assert not jira.allowed("implement", "Done")
     assert not jira.allowed("plan", "Ready")
+    assert jira.allowed("review", "Needs input")
+    assert not jira.allowed("review", "Ready")
 
 
 def test_move_refused_for_role_never_calls_jira() -> None:

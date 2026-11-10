@@ -1,0 +1,33 @@
+# Implementation agent (ADR-011): builds the approved spec into one change pull request.
+name: agent-implement
+
+on:
+  workflow_dispatch:
+    inputs:
+      story: { description: "Story key, e.g. SW-12 (its spec must be on main)", required: true }
+      model:
+        description: "Model; opus after two failed runs"
+        type: choice
+        options: [sonnet, opus]
+        default: sonnet
+
+permissions:
+  contents: read
+  id-token: write # Claude GitHub App token
+
+jobs:
+  implement:
+    uses: ./.github/workflows/agent.yml
+    secrets: inherit
+    with:
+      role: implement
+      skill: role-implement
+      jira_role: implement
+      story: ${{ inputs.story }}
+      model: ${{ inputs.model }}
+      max_turns: 80
+      timeout_minutes: 45
+      tools: "Read,Glob,Grep,Write,Edit,Bash(git *),Bash(uv *),Bash(python3 .github/scripts/*),Bash(gh pr create *),Bash(gh pr view *)"
+      task: >-
+        Build docs/specs/<story>.md on a new branch <story>-short-title, run every check in the
+        README, push, open one pull request on the template, then move the story to In review.

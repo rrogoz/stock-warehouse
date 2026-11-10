@@ -1,0 +1,29 @@
+# Refinement agent (ADR-011): verdict against the Definition of Ready; story to Ready or Needs input.
+name: agent-refine
+
+on:
+  workflow_dispatch:
+    inputs:
+      story: { description: "Story key, e.g. SW-12", required: true }
+      model: { description: "Model", type: choice, options: [haiku, sonnet], default: haiku }
+
+permissions:
+  contents: read
+  id-token: write # Claude GitHub App token
+
+jobs:
+  refine:
+    uses: ./.github/workflows/agent.yml
+    secrets: inherit
+    with:
+      role: refine
+      skill: role-refine
+      jira_role: refine
+      story: ${{ inputs.story }}
+      model: ${{ inputs.model }}
+      max_turns: 30
+      timeout_minutes: 15
+      tools: "Read,Glob,Grep,Bash(python3 .github/scripts/jira.py *)"
+      task: >-
+        Read the story with the Jira script, give the verdict with `verdict`, and move the story
+        to Ready or Needs input. Change no files.

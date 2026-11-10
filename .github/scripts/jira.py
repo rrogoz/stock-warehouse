@@ -33,7 +33,7 @@ MOVES: dict[str, set[str]] = {
     "refine": {"Ready", "Needs input"},
     "spec": {"Spec review"},
     "implement": {"In review"},
-    "review": set(),
+    "review": {"Needs input"},  # third rejection (ADR-011)
     "ci": {"In progress", "In review", "Awaiting release", "Done"},
 }
 # Comment tag per role, so one agent account still shows who spoke.
