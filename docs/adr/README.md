@@ -15,6 +15,7 @@ One file per decision. A new or changed ADR needs Rafal's approval (gate 2). Use
 | [ADR-009](0009-repository-and-standards.md) | Repository and concrete standards | Accepted |
 | [ADR-010](0010-tracker-and-story-workflow.md) | Tracker and story workflow | Accepted |
 | [ADR-011](0011-agent-orchestration.md) | Agent orchestration | Accepted |
+| [ADR-012](0012-workflow-file-changes.md) | Workflow file changes | Accepted |
 
 **Ground rules for every ADR.** A choice that breaks one needs an exception Rafal approves.
 

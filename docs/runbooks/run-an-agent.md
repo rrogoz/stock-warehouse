@@ -28,5 +28,5 @@ A story or pull request is ready for its next step: refine, spec, implement, rev
 - The run is green and its log shows the agent's steps.
 - Refine: verdict field and a `[refinement]` comment in Jira. Spec: a pull request on a `SW-NNN-…` branch and the story in Spec review. Implement: a pull request on a `SW-NNN-…` branch; the `story-status` workflow, not the agent, moves the story to In review (and to Awaiting release on merge). Review: a review by `rrogoz-sw-review`. Fix: new commits on the same pull request.
 - The run's job summary lists the tool calls the agent was refused ("Refused tool calls"); start there when an agent did less than asked.
-- Agents cannot push changes to `.github/workflows/`: the Claude GitHub App has no workflows permission. Such a story is built in a planning session from its approved spec, reviewed by `agent-review`, and merged by Rafal with the ruleset bypass.
+- Agents cannot push changes to `.github/workflows/`: the Claude GitHub App has no workflows permission. Such a story follows [ADR-012](../adr/0012-workflow-file-changes.md): built in a planning session from its approved spec, reviewed by `agent-review`, merged by Rafal with the ruleset bypass.
 - A refused run fails at the `limits` job with the reason: paused, not main, bad key, no spec on main, a fork, or three rejections already (the story then waits in Needs input).
