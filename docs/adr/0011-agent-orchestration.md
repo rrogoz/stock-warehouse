@@ -28,7 +28,7 @@ flowchart LR
 | --- | --- | --- |
 | Refinement | Rafal moves a story to Refinement | Verdict in Jira; story to Ready or Needs input |
 | Spec | Story reaches Ready | Pull request adding `docs/specs/<key>.md`; story to Spec review |
-| Implementation | The spec merges | Change pull request citing the spec; CI moves the story to In review |
+| Implementation | The spec merges | Change pull request citing the spec; CI moves the story to In review. Changes to workflow files: the planning assistant builds them ([ADR-012](0012-workflow-file-changes.md)) |
 | Review | The change pull request opens or updates | GitHub review: approve, or changes requested |
 | Fix | Changes are requested | New commits on the same pull request |
 
