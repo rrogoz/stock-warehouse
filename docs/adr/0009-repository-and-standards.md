@@ -44,6 +44,12 @@ Docs live in the repository, reviewed in the same pull request. Jira holds the w
 - **Fixed templates** in [templates/](../templates/): ADR, spec, runbook, standard.
 - **Kept true automatically:** CI checks docs coverage, links, template sections and ADR statuses; the review agent checks that a change updates every doc it affects.
 
+## Consequences
+
+- Agents and people read one short set of docs in the repository; Jira holds only the work.
+- Docs are reviewed with the code, so a change costs a little more review, and drift shows up as a failing check or a review finding.
+- Every rule marked "checked in CI" needs a check; until one exists, the review agent covers it.
+
 ## Options considered
 
 - pip, black, flake8, isort: more tools for the same job, slower.

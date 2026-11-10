@@ -60,6 +60,11 @@ flowchart LR
 - **Models per role:** strongest for planning, spec and review; lighter for refinement and small fixes; middle for implementation, moving up when a story fails twice. Tuned from the metrics.
 - **Usage limits:** agents and Rafal's own chats share one subscription allowance. When the limit is reached, **we wait:** the run stops cleanly, nothing half-done can merge, and the agent resumes after the reset. No paid extras.
 
+## Consequences
+
+- Every agent run is logged in GitHub Actions, and no agent holds Rafal's credentials.
+- Throughput is bounded by one subscription allowance; when it runs out, work waits.
+
 ## Options considered
 
 - Agents on Rafal's laptop first: they would act with his credentials, and runs would not be logged in one place.

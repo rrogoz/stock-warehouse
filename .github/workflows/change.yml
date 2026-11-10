@@ -1,0 +1,24 @@
+# Change check: title, branch and description follow docs/standards/change-conventions.md.
+# Separate from ci.yml so editing the description re-runs only this check.
+name: change
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  change:
+    name: change conventions
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      # Passed through env, never interpolated into the script (untrusted input).
+      - run: python3 .github/scripts/check_change.py
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BRANCH: ${{ github.head_ref }}
+          PR_BODY: ${{ github.event.pull_request.body }}
