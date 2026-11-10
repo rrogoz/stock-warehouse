@@ -31,6 +31,11 @@ Work needs a tracker that matches the delivery workflow in the [overview](../ove
 - **Consistency check:** a daily CI job compares Jira with GitHub (In progress needs an approved spec, Done needs a released change) and confirms the last weekday's PROD run succeeded. A mismatch fails the job, so GitHub emails Rafal.
 - **Site ownership:** Rafal is the Jira site admin; daily agent and CI activity keeps the free site active.
 
+## Consequences
+
+- Jira can drift without blocking anything; the daily consistency check is what keeps it true.
+- Statuses move without bookkeeping, so the metrics come from Jira and GitHub history.
+
 ## Options considered
 
 - GitHub Issues and Projects: next to the code, but not the tool used at work.

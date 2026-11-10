@@ -15,6 +15,7 @@ Status: M0 Foundations. Start with the [overview](docs/overview.md), then [princ
 | `reference/` | instrument register, calendars |
 | `dbt/` | macros, staging, silver, gold, tests |
 | `tests/` | `unit/`, `contract/`, `integration/`, `fixtures/` |
+| `.github/` | CI workflows, their check scripts and the pull request template |
 | `.claude/skills/` | agent skills: one per role, one per standard ([ADR-011](docs/adr/0011-agent-orchestration.md)) |
 
 Code only: data never lives in this repository.
@@ -31,6 +32,9 @@ uv run ruff check .          # lint
 uv run mypy                  # types
 uv run pytest                # tests
 uv run sqlfluff lint dbt     # SQL style
+uv run mypy .github/scripts  # types of the check scripts
+python3 .github/scripts/check_docs.py          # links, template sections, ADR statuses
+python3 .github/scripts/check_no_real_data.py  # no data files in the repository
 ```
 
 With Docker, the same image runs in DEV and PROD; only configuration differs:
@@ -39,6 +43,19 @@ With Docker, the same image runs in DEV and PROD; only configuration differs:
 docker build -t stock-warehouse .
 docker run --rm --env-file .env stock-warehouse
 ```
+
+## Checks
+
+CI runs on every pull request and on main ([ADR-008](docs/adr/0008-ci-cd-and-release.md)). Each check enforces a rule in a [standard](docs/standards/README.md).
+
+| Workflow, job | Checks |
+| --- | --- |
+| `ci`, code | Ruff format and lint, mypy, pytest, SQLFluff |
+| `ci`, repository | docs check, no-real-data check, gitleaks secret scan of the whole history |
+| `ci`, docker | the image builds and runs |
+| `change`, change conventions | title, branch and description follow the [change conventions](docs/standards/change-conventions.md) |
+
+The description follows the [pull request template](.github/pull_request_template.md). Making the checks required is SW-9.
 
 ## Work
 
