@@ -15,6 +15,7 @@ Status: M0 Foundations. Start with the [overview](docs/overview.md), then [princ
 | `reference/` | instrument register, calendars |
 | `dbt/` | macros, staging, silver, gold, tests |
 | `tests/` | `unit/`, `contract/`, `integration/`, `fixtures/` |
+| `.claude/skills/` | agent skills: one per role, one per standard ([ADR-011](docs/adr/0011-agent-orchestration.md)) |
 
 Code only: data never lives in this repository.
 

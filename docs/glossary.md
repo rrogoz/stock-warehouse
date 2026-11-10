@@ -29,6 +29,7 @@ Business and project terms, each defined once. Other docs link here instead of r
 | Run id | The id of one pipeline run, stamped on bronze metadata and silver rows, and logged in `ops_run_log`. |
 | SCD2 | Keeping every version of a reference record with its valid-from date, instead of overwriting it. |
 | Session | One trading day of a market or one publication day of a source, per its calendar. |
+| Skill | Short agent instructions for one role or one standard, in `.claude/skills/`; it links to the docs, never copies them ([ADR-011](adr/0011-agent-orchestration.md)). |
 | Source config | The YAML file that holds everything about a source except fetch and parse. |
 | Spec | A story's technical specification in `docs/specs/`; frozen after merge. |
 | Staging | dbt models per source between bronze and silver: rename, cast, register lookup and quarantine, generated from the source config. |

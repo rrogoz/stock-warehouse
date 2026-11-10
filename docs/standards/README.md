@@ -11,6 +11,6 @@ How we build: the concrete rules every change follows. Each standard meets its r
 | [Documentation](documentation.md) | Where facts live and how docs are written | `standard-documentation` |
 | [Change conventions](change-conventions.md) | Stories, pull requests, code style, review | `standard-change-conventions` |
 
-Skills are added in SW-6. In "How it is checked", **when** says which story builds the check: SW-7 (CI checks), SW-9 (review agent), M1 (checks that need the dbt project).
+Skills live in `.claude/skills/<skill>/SKILL.md`, next to the role skills ([ADR-011](../adr/0011-agent-orchestration.md)). In "How it is checked", **when** says which story builds the check: SW-7 (CI checks), SW-9 (review agent), M1 (checks that need the dbt project).
 
 Use the [template](../templates/standard.md) for a new standard.

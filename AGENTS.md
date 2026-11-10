@@ -14,6 +14,7 @@ This file links to the docs and never copies them (ADR-009). When a doc and this
 | [docs/glossary.md](docs/glossary.md) | a domain term is unclear |
 | [docs/standards/](docs/standards/) | the change touches the area a standard covers |
 | [docs/specs/](docs/specs/) | implementing a story: its approved spec |
+| [.claude/skills/](.claude/skills/) | acting in a role (`role-*`) or touching an area a standard covers (`standard-*`) |
 | [README.md](README.md) | layout, setup, and the check commands to run before a pull request |
 
 ## Rules that are easy to miss
