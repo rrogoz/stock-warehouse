@@ -60,6 +60,7 @@ The description follows the [pull request template](.github/pull_request_templat
 | Workflow | When | Does |
 | --- | --- | --- |
 | `consistency` | daily, 06:00 UTC | fails when a story is In progress without a spec on main, Done without a merged and released pull request, or the last weekday's PROD run (`prod-run.yml`, from M1) did not succeed ([ADR-010](docs/adr/0010-tracker-and-story-workflow.md)); `bootstrap` stories are exempt |
+| `story-status` | a change pull request opens or merges | moves its story to In review or Awaiting release through the Jira script with role `ci`; spec pull requests move nothing; not a required check ([ADR-010](docs/adr/0010-tracker-and-story-workflow.md)) |
 | `metrics` | Mondays, 07:00 UTC | per story merged in the last 7 days: review rounds and time from Ready to merge, in the job summary; the other metrics arrive in M1 |
 
 ## Agents

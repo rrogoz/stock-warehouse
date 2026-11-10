@@ -59,7 +59,8 @@ jobs:
         with:
           version: "0.11.32"
       # Builder agents act as the Claude GitHub App (OIDC), never with Rafal's credentials.
-      - uses: anthropics/claude-code-action@v1
+      - id: claude
+        uses: anthropics/claude-code-action@v1
         env:
           JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
           JIRA_USER_EMAIL: ${{ vars.JIRA_USER_EMAIL }}
@@ -78,3 +79,8 @@ jobs:
             --model ${{ inputs.model }}
             --max-turns ${{ inputs.max_turns }}
             --allowedTools "${{ inputs.tools }}"
+      # Refused tool calls in the log and job summary; no secret here, no artifact upload.
+      - if: always()
+        run: python3 .github/scripts/agent_report.py "$EXECUTION_FILE"
+        env:
+          EXECUTION_FILE: ${{ steps.claude.outputs.execution_file }}
