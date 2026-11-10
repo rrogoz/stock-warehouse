@@ -1,0 +1,26 @@
+# Weekly metrics report (ADR-010): per story, from Jira and GitHub history, in the job
+# summary. Script: .github/scripts/report_metrics.py
+name: metrics
+
+on:
+  schedule:
+    - cron: "0 7 * * 1" # Monday morning, covers the past 7 days
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  metrics:
+    name: weekly metrics report
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 .github/scripts/report_metrics.py
+        env:
+          JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ vars.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
