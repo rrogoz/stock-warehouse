@@ -15,7 +15,7 @@ Status: M0 Foundations. Start with the [overview](docs/overview.md), then [princ
 | `reference/` | instrument register, calendars |
 | `dbt/` | macros, staging, silver, gold, tests |
 | `tests/` | `unit/`, `contract/`, `integration/`, `fixtures/` |
-| `.github/` | CI workflows, their check scripts and the pull request template |
+| `.github/` | workflows, their scripts (checks, Jira script, consistency check, metrics report) and the pull request template |
 | `.claude/skills/` | agent skills: one per role, one per standard ([ADR-011](docs/adr/0011-agent-orchestration.md)) |
 
 Code only: data never lives in this repository.
@@ -56,6 +56,23 @@ CI runs on every pull request and on main ([ADR-008](docs/adr/0008-ci-cd-and-rel
 | `change`, change conventions | title, branch and description follow the [change conventions](docs/standards/change-conventions.md) |
 
 The description follows the [pull request template](.github/pull_request_template.md). Making the checks required is SW-9.
+
+| Workflow | When | Does |
+| --- | --- | --- |
+| `consistency` | daily, 06:00 UTC | fails when a story is In progress without a spec on main, Done without a merged and released pull request, or the last weekday's PROD run (`prod-run.yml`, from M1) did not succeed ([ADR-010](docs/adr/0010-tracker-and-story-workflow.md)); `bootstrap` stories are exempt |
+| `metrics` | Mondays, 07:00 UTC | per story merged in the last 7 days: review rounds and time from Ready to merge, in the job summary; the other metrics arrive in M1 |
+
+## Jira script
+
+Agents, CI and the planning assistant reach Jira only through `.github/scripts/jira.py` ([ADR-011](docs/adr/0011-agent-orchestration.md)). It uses the agent account from the `JIRA_*` settings, and each role may move a story only to the states ADR-010 gives it.
+
+```sh
+python3 .github/scripts/jira.py get SW-12
+python3 .github/scripts/jira.py comment SW-12 --role refine --body "..."  # posted as "[refinement] ..."
+python3 .github/scripts/jira.py verdict SW-12 --verdict ready --reason "..."  # field "Refinement verdict"
+python3 .github/scripts/jira.py move SW-12 "Ready" --role refine
+python3 .github/scripts/jira.py push stories.json --role plan  # create, or update Backlog stories
+```
 
 ## Work
 

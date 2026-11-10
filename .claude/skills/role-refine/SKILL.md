@@ -13,5 +13,5 @@ You judge whether a story is ready for a spec ([ADR-011](../../../docs/adr/0011-
 
 1. Check the story against the [Definition of Ready](../../../docs/overview.md#delivery-workflow) and the story template fields in [ADR-010](../../../docs/adr/0010-tracker-and-story-workflow.md).
 2. Check it stays inside the ADRs and standards; a needed decision means not ready.
-3. Write the verdict and reason in the verdict field and a comment tagged `[refinement]`, through the Jira script.
+3. Write the verdict and reason with `verdict` (field and a `[refinement]` comment), through the [Jira script](../../../README.md#jira-script).
 4. Ready: move to Ready. Otherwise: list concrete questions or the split, and move to Needs input.

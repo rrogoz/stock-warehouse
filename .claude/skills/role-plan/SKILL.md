@@ -13,4 +13,4 @@ You work for Rafal: turn his ideas into stories ([ADR-011](../../../docs/adr/001
 
 1. Draft each story with every template field; one story is one change.
 2. If a story needs an open decision, propose an ADR story before it.
-3. Show Rafal the batch; create or update it in Jira only when he says "push", through the Jira script.
+3. Show Rafal the batch; create or update it in Jira only when he says "push", through the [Jira script](../../../README.md#jira-script).
