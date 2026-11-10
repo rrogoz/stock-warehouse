@@ -28,7 +28,7 @@ flowchart LR
 | --- | --- | --- |
 | Refinement | Rafal moves a story to Refinement | Verdict in Jira; story to Ready or Needs input |
 | Spec | Story reaches Ready | Pull request adding `docs/specs/<key>.md`; story to Spec review |
-| Implementation | The spec merges | Change pull request citing the spec; story to In review |
+| Implementation | The spec merges | Change pull request citing the spec; CI moves the story to In review |
 | Review | The change pull request opens or updates | GitHub review: approve, or changes requested |
 | Fix | Changes are requested | New commits on the same pull request |
 
@@ -57,7 +57,7 @@ flowchart LR
 - **Limits:** agents start only on an event, never in a loop; each run has a turn and time limit; at most three review rounds; one run per story; a pause switch (one repository variable) stops every agent.
 - **Rollout:** end of M0, every agent starts with one click. In M1, review, fix and implementation start on GitHub events; late in M1, refinement and spec start from Jira status, polled every 30 minutes.
 - **Supervised mode in M1:** Rafal is the required approver on every pull request. From M2, once metrics justify it, back to his four gates and automatic merge. Supervised approvals count as gates, not interventions.
-- **Models per role:** strongest for planning, spec and review; lighter for refinement and small fixes; middle for implementation, moving up when a story fails twice. Tuned from the metrics.
+- **Models per role:** strongest for planning, spec and review; middle for refinement, because verdict accuracy is a demo goal (Rafal, 2026-11-10), and for implementation, moving up when a story fails twice; lighter for small fixes. Tuned from the metrics.
 - **Usage limits:** agents and Rafal's own chats share one subscription allowance. When the limit is reached, **we wait:** the run stops cleanly, nothing half-done can merge, and the agent resumes after the reset. No paid extras.
 
 ## Consequences

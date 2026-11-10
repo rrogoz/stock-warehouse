@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       story: { description: "Story key, e.g. SW-12", required: true }
-      model: { description: "Model", type: choice, options: [haiku, sonnet], default: haiku }
+      model: { description: "Model", type: choice, options: [sonnet, opus], default: sonnet }
 
 permissions:
   contents: read

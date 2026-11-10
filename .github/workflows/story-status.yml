@@ -1,0 +1,28 @@
+# Story status (ADR-010): CI moves a story to In review when its change pull request
+# opens and to Awaiting release when it merges. Runs from main (pull_request_target)
+# and never checks out the pull request. Not a required check: Jira is never a gate.
+name: story-status
+
+on:
+  pull_request_target:
+    types: [opened, reopened, closed]
+
+permissions:
+  contents: read
+
+jobs:
+  move:
+    name: move story
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4 # main only, never the pull request head
+      # Passed through env, never interpolated into the script (untrusted input).
+      - run: python3 .github/scripts/story_status.py
+        env:
+          PR_ACTION: ${{ github.event.action }}
+          PR_MERGED: ${{ github.event.pull_request.merged }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ vars.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}

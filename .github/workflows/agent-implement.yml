@@ -30,4 +30,4 @@ jobs:
       tools: "Read,Glob,Grep,Write,Edit,Bash(git *),Bash(uv *),Bash(python3 .github/scripts/*),Bash(gh pr create *),Bash(gh pr view *)"
       task: >-
         Build docs/specs/<story>.md on a new branch <story>-short-title, run every check in the
-        README, push, open one pull request on the template, then move the story to In review.
+        README, push, and open one pull request on the template; CI moves the story to In review.

@@ -32,7 +32,7 @@ MOVES: dict[str, set[str]] = {
     "plan": set(),
     "refine": {"Ready", "Needs input"},
     "spec": {"Spec review"},
-    "implement": {"In review"},
+    "implement": set(),  # CI moves the change pull request's story (story_status.py)
     "review": {"Needs input"},  # third rejection (ADR-011)
     "ci": {"In progress", "In review", "Awaiting release", "Done"},
 }

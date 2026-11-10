@@ -1,12 +1,14 @@
 """Unit tests for the Jira script, the consistency check and the metrics report."""
 
 import importlib.util
+import json
 from datetime import UTC, date, datetime
 from pathlib import Path
 from types import ModuleType
 from typing import Any
 
 import pytest
+import yaml
 
 SCRIPTS = Path(__file__).resolve().parents[2] / ".github" / "scripts"
 
@@ -20,6 +22,8 @@ def load(name: str) -> ModuleType:
 
 
 jira = load("jira")
+story_status = load("story_status")
+agent_report = load("agent_report")
 consistency = load("check_consistency")
 metrics = load("report_metrics")
 
@@ -58,6 +62,13 @@ def test_roles_move_only_to_their_states() -> None:
     assert not jira.allowed("review", "Ready")
 
 
+def test_jira_move_allowed() -> None:
+    # SW-15: CI, not the implement agent, moves a change pull request's story.
+    assert not jira.allowed("implement", "In review")
+    assert jira.allowed("ci", "In review")
+    assert jira.allowed("ci", "Awaiting release")
+
+
 def test_move_refused_for_role_never_calls_jira() -> None:
     fake = FakeJira()
     with pytest.raises(jira.JiraError, match="may not move"):
@@ -69,7 +80,7 @@ def test_move_uses_the_transition_to_the_target_state() -> None:
     transitions = {"transitions": [{"id": "61", "to": {"name": "In Progress"}}]}
     transitions["transitions"].append({"id": "71", "to": {"name": "In review"}})
     fake = FakeJira({("GET", "/rest/api/2/issue/SW-12/transitions"): transitions})
-    fake.move("SW-12", "In review", "implement")
+    fake.move("SW-12", "In review", "ci")
     assert fake.calls[-1] == (
         "POST",
         "/rest/api/2/issue/SW-12/transitions",
@@ -204,3 +215,100 @@ def test_verdict_sets_dropdown_option_and_reason() -> None:
 def test_verdict_refuses_unknown_option() -> None:
     with pytest.raises(jira.JiraError, match="no option 'split'"):
         jira.option_for("split", ["Ready", "Questions"])
+
+
+# Story status (SW-15)
+
+
+@pytest.mark.parametrize(
+    ("action", "merged", "title", "expected"),
+    [
+        ("opened", False, "feat(reference): add register [SW-14]", ("SW-14", "In review")),
+        ("reopened", False, "fix(ci): x [SW-15]", ("SW-15", "In review")),
+        ("closed", True, "feat(reference): add register [SW-14]", ("SW-14", "Awaiting release")),
+        ("closed", False, "feat(reference): add register [SW-14]", None),
+        ("opened", False, "docs(specs): add spec [SW-15]", None),
+        ("closed", True, "docs(specs): add spec [SW-15]", None),
+        ("opened", False, "chore: no story key", None),
+        ("synchronize", False, "fix(ci): x [SW-15]", None),
+    ],
+)
+def test_story_status_target(
+    action: str, merged: bool, title: str, expected: tuple[str, str] | None
+) -> None:
+    assert story_status.target(action, merged, title) == expected
+
+
+def test_story_status_skips_current_state() -> None:
+    fake = FakeJira({("GET", "/rest/api/2/issue/SW-14?"): story("SW-14", "In review")})
+    assert "already" in story_status.apply(fake, "SW-14", "In review")
+    assert all(method == "GET" for method, _, _ in fake.calls)
+
+
+def test_story_status_moves() -> None:
+    transitions = {"transitions": [{"id": "81", "to": {"name": "Awaiting release"}}]}
+    fake = FakeJira(
+        {
+            ("GET", "/rest/api/2/issue/SW-14?"): story("SW-14", "In review"),
+            ("GET", "/rest/api/2/issue/SW-14/transitions"): transitions,
+        }
+    )
+    story_status.apply(fake, "SW-14", "Awaiting release")
+    posts = [call for call in fake.calls if call[0] == "POST"]
+    assert posts == [("POST", "/rest/api/2/issue/SW-14/transitions", {"transition": {"id": "81"}})]
+
+
+# Agent report (SW-15)
+
+
+def execution(denials: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
+    result: dict[str, Any] = {"type": "result", "subtype": "success"}
+    if denials is not None:
+        result["permission_denials"] = denials
+    return [{"type": "system", "subtype": "init"}, result]
+
+
+def test_agent_report(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    long_command = "gh pr edit 12 --body " + "x" * 500
+    denied = [
+        {"tool_name": "Bash", "tool_input": {"command": long_command}},
+        {"tool_name": "Write", "tool_input": {"file_path": "/etc/passwd"}},
+    ]
+    text = agent_report.report(agent_report.denials(execution(denied)))
+    rows = [line for line in text.splitlines() if line.startswith("| Bash") or "Write" in line]
+    assert len(rows) == 2
+    assert all(len(row) < agent_report.MAX_INPUT + 40 for row in rows)
+    assert "No refused tool calls" in agent_report.report(agent_report.denials(execution(None)))
+
+    summary = tmp_path / "summary.md"
+    file = tmp_path / "execution.json"
+    file.write_text(json.dumps(execution(denied)))
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setenv("GITHUB_STEP_SUMMARY", str(summary))
+        assert agent_report.main(["agent_report.py", str(file)]) == 0
+    assert "| Write |" in summary.read_text()
+    assert agent_report.main(["agent_report.py", str(tmp_path / "missing.json")]) == 0
+    assert "notice" in capsys.readouterr().out
+
+
+# Workflow settings (SW-15)
+
+WORKFLOWS = SCRIPTS.parent / "workflows"
+RUNBOOK = SCRIPTS.parents[1] / "docs" / "runbooks" / "run-an-agent.md"
+
+
+def test_implement_task_leaves_move_to_ci() -> None:
+    workflow = yaml.safe_load((WORKFLOWS / "agent-implement.yml").read_text())
+    task = workflow["jobs"]["implement"]["with"]["task"]
+    assert "move the story" not in task
+    assert "CI moves the story" in task
+
+
+def test_refine_default_model() -> None:
+    workflow = yaml.safe_load((WORKFLOWS / "agent-refine.yml").read_text())
+    # PyYAML reads the key "on" as True.
+    model = workflow[True]["workflow_dispatch"]["inputs"]["model"]
+    assert model["default"] == "sonnet"
+    row = next(line for line in RUNBOOK.read_text().splitlines() if "`agent-refine`" in line)
+    assert "sonnet" in row
+    assert "haiku" not in row
