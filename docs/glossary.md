@@ -11,6 +11,7 @@ Business and project terms, each defined once. Other docs link here instead of r
 | Business date | The date a record describes, for prices the trading day in the exchange's calendar. Column `business_date`. |
 | Business key | The natural key of an entity, such as instrument code plus business date plus source. Silver uses only business keys. |
 | Completeness gate | The silver check that every expected instrument and session is present or has a quote status. If it fails, gold is not rebuilt (D14). |
+| Closure | A weekday without a session in a trading calendar: a holiday or an ad hoc closure. Listed with its name in the calendar file. |
 | Connector | The source-specific code: `fetch` and `parse`. Everything else is config and the shared engine ([ADR-007](adr/0007-pipeline-engine-and-operations.md)). |
 | Contract | The versioned definition of a silver entity: fields, types, key, rules. Used by tests and external producers. |
 | Current symbol | The symbol an instrument is shown under today; it may change, the permanent code does not. FX: base and quote currency without separator, for example `EURPLN`. |
@@ -30,10 +31,11 @@ Business and project terms, each defined once. Other docs link here instead of r
 | Release candidate | The image built for every merge to main, tagged with date and short commit ([ADR-008](adr/0008-ci-cd-and-release.md)). |
 | Run id | The id of one pipeline run, stamped on bronze metadata and silver rows, and logged in `ops_run_log`. |
 | SCD2 | Keeping every version of a reference record with its valid-from date, instead of overwriting it. |
-| Session | One trading day of a market or one publication day of a source, per its calendar. |
+| Session | One trading day of a market or one publication day of a source, per its trading calendar (see Trading calendar). |
 | Skill | Short agent instructions for one role or one standard, in `.claude/skills/`; it links to the docs, never copies them ([ADR-011](adr/0011-agent-orchestration.md)). |
 | Source identifier | A source's own identifier for an instrument, mapped to its permanent code in the instrument register, for example NBP `A/EUR` for `FX.EURPLN`. Field `source_instrument_id`. |
 | Source config | The YAML file that holds everything about a source except fetch and parse. |
 | Spec | A story's technical specification in `docs/specs/`; frozen after merge. |
 | Staging | dbt models per source between bronze and silver: rename, cast, register lookup and quarantine, generated from the source config. |
 | Supervised mode | M1 rule: Rafal approves every pull request ([ADR-011](adr/0011-agent-orchestration.md)). |
+| Trading calendar | The reviewed list of sessions of `XWAR` or `NBP` for one year: a file in [`reference/calendars/`](../reference/calendars/) validated by [its schema](../config/schemas/trading_calendar.schema.json). Sessions are the weekdays of the year minus its closures. |

@@ -8,6 +8,8 @@ dependencies = []
 
 [dependency-groups]
 dev = [
+    "exchange-calendars>=4.13.3",
+    "holidays>=0.108",
     "jsonschema>=4.26.0",
     "mypy>=1.13",
     "pytest>=8.3",
@@ -53,3 +55,8 @@ max_line_length = 100
 
 [tool.sqlfluff.rules.capitalisation.keywords]
 capitalisation_policy = "lower"
+
+[[tool.mypy.overrides]]
+# exchange_calendars ships no type hints; pandas stubs are not installed.
+module = ["exchange_calendars", "exchange_calendars.*", "pandas", "pandas.*"]
+ignore_missing_imports = true
