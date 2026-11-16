@@ -70,7 +70,7 @@ def expected_names() -> set[str]:
     }
 
 
-def test_files_cover_2002_to_2027() -> None:
+def test_files_cover_all_years() -> None:
     assert len(expected_names()) == 52
     assert {p.name for p in CALENDAR_DIR.glob("*.yaml")} == expected_names()
 
@@ -153,3 +153,9 @@ BAD = {
 def test_bad_calendar_fails(name: str, text: str) -> None:
     with pytest.raises((yaml.YAMLError, ValidationError, ValueError)):
         validate(name, text)
+
+
+def test_year_outside_the_calendar_range_raises() -> None:
+    for calendar in calendars.CALENDARS:
+        with pytest.raises(ValueError, match="outside"):
+            calendars.closures(calendar, calendars.LAST_YEAR + 1)

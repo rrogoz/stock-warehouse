@@ -9,13 +9,12 @@ from __future__ import annotations
 import argparse
 import sys
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 import exchange_calendars
 import holidays
-import pandas as pd
 
 CALENDARS = ("XWAR", "NBP")
 AD_HOC = "Ad hoc closure"
@@ -49,11 +48,11 @@ def _polish_holidays(year: int) -> dict[date, str]:
 
 def _xwar(year: int) -> tuple[exchange_calendars.ExchangeCalendar, dict[date, str]]:
     cal = exchange_calendars.get_calendar(
-        "XWAR", start=pd.Timestamp(f"{FIRST_YEAR}-01-01"), end=pd.Timestamp(f"{LAST_YEAR}-12-31")
+        "XWAR", start=f"{FIRST_YEAR}-01-01", end=f"{LAST_YEAR}-12-31"
     )
     names: dict[date, str] = {}
     rules = cal.regular_holidays.holidays(
-        pd.Timestamp(year, 1, 1), pd.Timestamp(year, 12, 31), return_name=True
+        datetime(year, 1, 1), datetime(year, 12, 31), return_name=True
     )
     for stamp, name in rules.items():
         names[stamp.date()] = str(name)
@@ -64,12 +63,14 @@ def closures(calendar: str, year: int) -> list[Closure]:
     """Weekdays of `year` without a session of `calendar`, with a reason each."""
     if calendar not in CALENDARS:
         raise ValueError(f"unknown calendar {calendar!r}")
+    if not FIRST_YEAR <= year <= LAST_YEAR:
+        raise ValueError(f"year {year} is outside {FIRST_YEAR}..{LAST_YEAR}; raise LAST_YEAR first")
     polish = _polish_holidays(year)
     if calendar == "NBP":
         return [Closure(day, polish[day]) for day in _weekdays(year) if day in polish]
 
     cal, library_names = _xwar(year)
-    start, end = pd.Timestamp(year, 1, 1), pd.Timestamp(year, 12, 31)
+    start, end = datetime(year, 1, 1), datetime(year, 12, 31)
     sessions = {s.date() for s in cal.sessions if start <= s <= end}
     if any(day.weekday() >= 5 for day in sessions):
         raise ValueError(f"XWAR {year}: weekend session, the file format cannot express it")
