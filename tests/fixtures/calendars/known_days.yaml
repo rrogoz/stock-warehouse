@@ -1,0 +1,8 @@
+# Public holiday dates and ordinary weekdays, used to spot-check the generator (SW-17).
+# Synthetic: no market data.
+closures:
+  XWAR: ["2005-04-08", "2018-01-02", "2025-12-31"]
+  NBP: ["2011-01-06", "2018-11-12", "2025-12-24"]
+sessions:
+  XWAR: ["2010-01-06"]
+  NBP: ["2010-01-06", "2024-12-24", "2025-12-31"]
