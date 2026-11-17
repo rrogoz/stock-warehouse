@@ -11,7 +11,7 @@ Every entity has a clear grain, key and lineage, and growth adds rows, not table
 - **Every entity config declares** its grain in one sentence, its business key and whether it is SCD2.
 - **Silver uses business keys only.** Technical keys exist only in gold, as a hash of the business key.
 - **One table per entity, never per instrument or asset class.** A new instrument or asset class adds rows (and register entries), never tables or columns.
-- **Standard silver columns on every record:** `business_date`, `known_at`, `run_id`, `source`, `record_hash`.
+- **Standard silver columns on every market-data record:** `business_date`, `known_at`, `run_id`, `source`, `record_hash`. `ops_` entities carry `run_id`, `business_date` and `known_at`, where `known_at` is when the engine wrote the record.
 - **Prices also carry** `adjustment_basis` and `price_type`; one series never mixes bases (D7).
 - **Silver follows its contract.** Source-specific fields stay in bronze; a field enters silver only when the canonical entity defines it.
 - **Insert-only.** Nothing is updated or deleted; a correction is a new version; "current" and "as known at" views derive the rest.

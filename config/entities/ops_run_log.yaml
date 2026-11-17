@@ -1,0 +1,53 @@
+# Entity config: silver.ops_run_log (SW-16). The engine builds the table's DDL from this file.
+# Schema: arrives with the dbt macros story.
+version: 1
+entity: ops_run_log
+layer: silver
+description: >-
+  One row per pipeline run: when it started and ended, how it ended, the code version and the
+  rows each step produced. Rebuilt every run from the insert-only objects under `ops/run_log/`
+  in object storage, so a run that never published is recorded too.
+grain: one row per pipeline run
+business_key: [run_id]
+scd2: false
+fields:
+  - name: run_id
+    type: varchar
+    required: true
+    description: Id of the run, a uuid4 in hex. Business key.
+  - name: business_date
+    type: date
+    required: true
+    description: UTC date of `started_at`. A run has no market date.
+  - name: known_at
+    type: timestamptz
+    required: true
+    description: >-
+      When the engine learned the outcome, UTC: `ended_at` for an ended run, `started_at` for an
+      interrupted one. Never null, never changes. For an `ops_` entity there is no bronze, so
+      this is the engine's write time.
+  - name: started_at
+    type: timestamptz
+    required: true
+    description: When the run started, UTC (write time of `started.json`).
+  - name: ended_at
+    type: timestamptz
+    required: false
+    description: When the run ended, UTC. Null for an interrupted run.
+  - name: status
+    type: varchar
+    required: true
+    allowed: [succeeded, failed, interrupted]
+    description: "`succeeded`, `failed`, or `interrupted` (started, never ended)."
+  - name: image_tag
+    type: varchar
+    required: true
+    description: Tag of the image that ran, the code version for replay.
+  - name: step_row_counts
+    type: json
+    required: false
+    description: 'Rows per step name, for example `{"fetch_nbp": 31}`.'
+  - name: failed_step
+    type: varchar
+    required: false
+    description: Name of the step (or `publish`) that failed. Null unless `failed`.

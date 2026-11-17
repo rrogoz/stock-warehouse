@@ -22,6 +22,7 @@ Business and project terms, each defined once. Other docs link here instead of r
 | Instrument register | The reviewed file [`reference/instrument_register.yaml`](../reference/instrument_register.yaml) that defines every instrument's identity and source identifiers, validated by [its schema](../config/schemas/instrument_register.schema.json). |
 | Known at | When we learned a record: the fetch time of its bronze file, in UTC. Column `known_at` (D13). |
 | Permanent code | An instrument's identity, assigned once and never changed or reused, for example `FX.EURPLN` ([ADR-004](adr/0004-physical-data-model.md)). |
+| Pointer | The object `warehouse/current.json` that names the published database file. Written last in a run, so an interrupted run leaves the old version current; restoring means pointing it back ([ADR-003](adr/0003-storage-and-physical-format.md), [runbook](runbooks/run-the-pipeline.md)). |
 | Point in time | Data shown as it was known at a past moment, with nothing learned later (D11, D13). |
 | Pre-release check | CI run of a release candidate on the last 30 sessions of real data, in throwaway storage, before Rafal approves it ([ADR-002](adr/0002-runtime-and-environments.md)). |
 | Quarantine | Where rejected rows go, with a reason, instead of being dropped or guessed. Table `ops_quarantine`. |
@@ -29,7 +30,8 @@ Business and project terms, each defined once. Other docs link here instead of r
 | Recorded date | The date a fact was written to the instrument register, next to its valid-from date, so the register is point in time. Field `recorded_date`. |
 | Record hash | Hash of a record's normalised value columns, used to skip unchanged rows. Column `record_hash`. |
 | Release candidate | The image built for every merge to main, tagged with date and short commit ([ADR-008](adr/0008-ci-cd-and-release.md)). |
-| Run id | The id of one pipeline run, stamped on bronze metadata and silver rows, and logged in `ops_run_log`. |
+| Run id | The id of one pipeline run, stamped on bronze metadata and silver rows, and logged in [`ops_run_log`](../config/entities/ops_run_log.yaml). |
+| Run log | The insert-only objects under `ops/run_log/` (`started.json`, `ended.json` per run) and the table `silver.ops_run_log` rebuilt from them each run. |
 | SCD2 | Keeping every version of a reference record with its valid-from date, instead of overwriting it. |
 | Session | One trading day of a market or one publication day of a source, per its trading calendar (see Trading calendar). |
 | Skill | Short agent instructions for one role or one standard, in `.claude/skills/`; it links to the docs, never copies them ([ADR-011](adr/0011-agent-orchestration.md)). |
