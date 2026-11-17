@@ -37,11 +37,17 @@ python3 .github/scripts/check_docs.py          # links, template sections, ADR s
 python3 .github/scripts/check_no_real_data.py  # no data files in the repository
 ```
 
-With Docker, the same image runs in DEV and PROD; only configuration differs:
+Run the pipeline on a local folder (`SW_STORAGE_BACKEND=local` in `.env`; data goes to the gitignored `data/`). The last line is `run <run_id> <status>`; exit code 0 means published, 1 a failed step or publish, 2 bad configuration ([run the pipeline](docs/runbooks/run-the-pipeline.md)):
+
+```sh
+uv run python -m engine run
+```
+
+With Docker, the same image runs in DEV and PROD; only configuration differs. The container cannot write to a local folder, so `.env` needs `SW_STORAGE_BACKEND=s3` with the DEV R2 values ([run the pipeline](docs/runbooks/run-the-pipeline.md), Part 1):
 
 ```sh
 docker build -t stock-warehouse .
-docker run --rm --env-file .env stock-warehouse
+docker run --rm --env-file .env stock-warehouse run
 ```
 
 ## Checks

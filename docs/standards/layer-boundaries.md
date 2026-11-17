@@ -9,7 +9,7 @@ Each layer reads only from the layer below it, so agents cannot blur the medalli
 ## Rules
 
 - **Bronze** is written only by the engine, from connectors. Nothing reads a source except a connector.
-- **Staging and silver** read only bronze and reference data (`reference/`, `ref_`, `map_`, `dim_instrument`).
+- **Staging and silver** read only bronze, reference data (`reference/`, `ref_`, `map_`, `dim_instrument`) and the engine's run log (`ops/run_log/`, `ops_` entities).
 - **Gold** reads only silver. Never bronze, never staging.
 - **External producers,** Stage 2 signals included, enter only through bronze as a source, then the contract, then silver.
 - **Gold features never depend on signals or portfolios,** so the gold, model, bronze loop is never circular.

@@ -4,13 +4,19 @@ version = "0.1.0"
 description = "Agentic delivery demonstrator: a medallion data warehouse for public market data."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "boto3>=1.44.4",
+    "duckdb>=2.0.0",
+    "pyyaml>=6.0.3",
+]
 
 [dependency-groups]
 dev = [
+    "boto3-stubs[s3]>=1.44.4",
     "exchange-calendars>=4.13.3",
     "holidays>=0.108",
     "jsonschema>=4.26.0",
+    "moto[s3]>=5.2.5",
     "mypy>=1.13",
     "pytest>=8.3",
     "pyyaml>=6.0.3",

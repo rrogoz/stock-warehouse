@@ -21,6 +21,10 @@ COPY reference ./reference
 COPY dbt ./dbt
 RUN uv sync --frozen --no-dev
 
+# The image tag the run log records (ADR-007); set at build time.
+ARG SW_IMAGE_TAG=local
+ENV SW_IMAGE_TAG=$SW_IMAGE_TAG
+
 RUN useradd --create-home sw
 USER sw
 
