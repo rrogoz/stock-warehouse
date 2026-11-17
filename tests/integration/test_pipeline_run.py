@@ -163,6 +163,15 @@ def test_retention_keeps_14(cfg: Config, store: LocalStorage) -> None:
     assert json.loads(store.read_bytes(POINTER))["database"] in files
 
 
+def test_failing_download_is_prepare(cfg: Config, store: LocalStorage, tmp_path: Path) -> None:
+    run_pipeline(cfg, store, [])
+    store.delete(json.loads(store.read_bytes(POINTER))["database"])
+    result = run_pipeline(cfg, store, [FakeStep("a", 1)])
+    assert (result.status, result.exit_code) == ("failed", 1)
+    ended = json.loads(store.read_bytes(f"ops/run_log/{result.run_id}/ended.json"))
+    assert ended["status"] == "failed" and ended["failed_step"] == "prepare"
+
+
 def test_failing_step(cfg: Config, store: LocalStorage, tmp_path: Path) -> None:
     run_pipeline(cfg, store, [FakeStep("a", 1)])
     pointer, key = store.read_bytes(POINTER), json.loads(store.read_bytes(POINTER))["database"]

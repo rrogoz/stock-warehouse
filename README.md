@@ -43,7 +43,7 @@ Run the pipeline on a local folder (`SW_STORAGE_BACKEND=local` in `.env`; data g
 uv run python -m engine run
 ```
 
-With Docker, the same image runs in DEV and PROD; only configuration differs:
+With Docker, the same image runs in DEV and PROD; only configuration differs. The container cannot write to a local folder, so `.env` needs `SW_STORAGE_BACKEND=s3` with the DEV R2 values ([run the pipeline](docs/runbooks/run-the-pipeline.md), Part 1):
 
 ```sh
 docker build -t stock-warehouse .

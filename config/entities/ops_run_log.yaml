@@ -50,4 +50,4 @@ fields:
   - name: failed_step
     type: varchar
     required: false
-    description: Name of the step (or `publish`) that failed. Null unless `failed`.
+    description: Name of the step that failed, `publish` for a publish failure, or `prepare` for a failure before the first step (pointer read, download or run-log rebuild). Null unless `failed`.

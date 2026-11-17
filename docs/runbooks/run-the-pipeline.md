@@ -17,7 +17,7 @@ Part 1: first run on Windows with Docker Desktop (DEV only).
 5. Check `$LASTEXITCODE`: 0 is success, 1 a failed step or publish, 2 bad configuration (the message names the missing setting).
 6. Check the last output line is `run <run_id> succeeded`.
 7. In bucket `sw-dev` check the new `warehouse/sw_<date>_<run_id>.duckdb`, that `warehouse/current.json` names it, and that `ops/run_log/<run_id>/ended.json` says `succeeded`.
-8. To read the run log row, download the file `current.json` names and run `SELECT * FROM silver.ops_run_log` in the DuckDB CLI.
+8. To read the run log row, download the file `current.json` names and run `SELECT * FROM silver.ops_run_log` in the DuckDB CLI; check `image_tag` is `dev-first`.
 
 Part 2: read the run log and restore.
 
