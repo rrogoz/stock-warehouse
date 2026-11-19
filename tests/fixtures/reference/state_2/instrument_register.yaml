@@ -1,0 +1,49 @@
+# Synthetic instrument register, state 2 (SW-19): state 1 plus a ticker rename of FX.BBBPLN,
+# a new NBP identifier version for FX.AAAPLN and a new instrument FX.CCCPLN.
+version: 1
+instruments:
+  FX.AAAPLN:
+    versions:
+      - valid_from_date: "2020-01-02"
+        recorded_date: "2026-01-05"
+        current_symbol: AAAPLN
+        asset_class: fx
+        quote_ccy: PLN
+    source_ids:
+      - source: nbp
+        source_instrument_id: A/AAA
+        valid_from_date: "2020-01-02"
+        recorded_date: "2026-01-05"
+      - source: nbp
+        source_instrument_id: B/AAA
+        valid_from_date: "2026-02-02"
+        recorded_date: "2026-02-03"
+  FX.BBBPLN:
+    versions:
+      - valid_from_date: "2020-01-02"
+        recorded_date: "2026-01-05"
+        current_symbol: BBBPLN
+        asset_class: fx
+        quote_ccy: PLN
+      - valid_from_date: "2026-02-02"
+        recorded_date: "2026-02-03"
+        current_symbol: BBXPLN
+        asset_class: fx
+        quote_ccy: PLN
+    source_ids:
+      - source: nbp
+        source_instrument_id: A/BBB
+        valid_from_date: "2020-01-02"
+        recorded_date: "2026-01-05"
+  FX.CCCPLN:
+    versions:
+      - valid_from_date: "2026-02-02"
+        recorded_date: "2026-02-03"
+        current_symbol: CCCPLN
+        asset_class: fx
+        quote_ccy: PLN
+    source_ids:
+      - source: nbp
+        source_instrument_id: A/CCC
+        valid_from_date: "2026-02-02"
+        recorded_date: "2026-02-03"

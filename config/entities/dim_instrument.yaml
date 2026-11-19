@@ -1,0 +1,52 @@
+# Entity config: silver.dim_instrument (SW-19). Format: config/schemas/entity.schema.json.
+# dbt model and tests are generated from this file: `uv run python -m engine.dbt_models`.
+version: 1
+entity: dim_instrument
+layer: silver
+description: >-
+  Every version of every instrument's attributes, as the instrument register records them
+  (`reference/instrument_register.yaml`, `versions`). Lineage: register, step `reference`,
+  staging model `stg_reference__instrument_versions`. Prices look instruments up here.
+grain: one version of an instrument's attributes, per instrument and valid-from date
+built_by: dbt
+input: stg_reference__instrument_versions
+business_key: [instrument_code]
+scd2: true
+fields:
+  - name: instrument_code
+    type: varchar
+    required: true
+    description: Permanent code of the instrument, for example `FX.EURPLN` (ADR-004). Business key.
+  - name: valid_from_date
+    type: date
+    required: true
+    description: First date this version holds. The business date of the entity (SCD2).
+  - name: current_symbol
+    type: varchar
+    required: true
+    description: Symbol the instrument is shown under from `valid_from_date` on; FX, base and quote currency without separator, for example `EURPLN`.
+  - name: asset_class
+    type: varchar
+    required: true
+    allowed: [fx]
+    description: Asset class of the instrument.
+  - name: exchange
+    type: varchar
+    required: false
+    description: MIC of the listing exchange, for example `XWAR`. Null for FX pairs.
+  - name: quote_ccy
+    type: varchar
+    required: true
+    description: Currency of the instrument's prices, ISO 4217, for example `PLN`.
+  - name: known_at
+    type: timestamptz
+    required: true
+    description: Midnight UTC of the version's `recorded_date` in the register. Reference data has no bronze, so this replaces the fetch time.
+  - name: run_id
+    type: varchar
+    required: true
+    description: Id of the run that inserted the row (`ops_run_log.run_id`).
+  - name: record_hash
+    type: varchar
+    required: true
+    description: md5 of the value fields (`current_symbol`, `asset_class`, `exchange`, `quote_ccy`) as text, null as `\N`, joined by `chr(31)`. A version is inserted only when it differs from the previous one.

@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "entity.schema.json",
+  "title": "Entity config",
+  "description": "Validates config/entities/<entity>.yaml, the documentation home of a silver or gold entity (ADR-006, ADR-007). A `dbt` entity's model, contract and tests are generated from it by `python -m engine.dbt_models`. Rules a schema cannot express (keys and references name existing fields, SCD2 has valid_from_date) are checked in tests/unit/test_entity_configs.py.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "entity", "layer", "description", "grain", "built_by", "business_key", "scd2", "fields"],
+  "properties": {
+    "version": {
+      "description": "Version of the entity config format.",
+      "const": 1
+    },
+    "entity": {
+      "description": "Entity name, the table name in its layer and the file name; the prefix tells the kind (docs/standards/naming.md).",
+      "type": "string",
+      "pattern": "^(dim|fact|ref|map|ops)_[a-z0-9_]+$"
+    },
+    "layer": {
+      "description": "Schema the entity lives in.",
+      "enum": ["silver", "gold"]
+    },
+    "description": {
+      "description": "Purpose of the entity and its lineage: sources and upstream entities.",
+      "type": "string",
+      "minLength": 1
+    },
+    "grain": {
+      "description": "What one row means, in one sentence (docs/standards/data-modelling.md).",
+      "type": "string",
+      "minLength": 1
+    },
+    "built_by": {
+      "description": "`dbt`: a model generated from this file; `engine`: built by the engine's Python (ops_run_log, DDL in src/engine/run_log.py).",
+      "enum": ["dbt", "engine"]
+    },
+    "input": {
+      "description": "Name of the staging model a `dbt` entity reads.",
+      "type": "string",
+      "pattern": "^stg_[a-z0-9_]+$"
+    },
+    "business_key": {
+      "description": "Fields of the business key. An SCD2 entity is keyed by these plus `valid_from_date` (ADR-004); every version is also unique on `known_at`.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string" }
+    },
+    "scd2": {
+      "description": "True if every version of a record is kept with its `valid_from_date` (SCD2).",
+      "type": "boolean"
+    },
+    "fields": {
+      "description": "Columns, in table order.",
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/field" }
+    }
+  },
+  "if": {
+    "properties": { "built_by": { "const": "dbt" } }
+  },
+  "then": {
+    "required": ["input"]
+  },
+  "else": {
+    "not": { "required": ["input"] }
+  },
+  "$defs": {
+    "field": {
+      "description": "One column.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type", "required", "description"],
+      "properties": {
+        "name": {
+          "description": "Column name, lower-case snake_case with the type suffix of docs/standards/naming.md.",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "type": {
+          "description": "Column type: `varchar`, `date`, `timestamptz` (UTC timestamp), `boolean` or `json`.",
+          "enum": ["varchar", "date", "timestamptz", "boolean", "json"]
+        },
+        "required": {
+          "description": "True if the column is never null; generates a `not_null` test.",
+          "type": "boolean"
+        },
+        "description": {
+          "description": "Meaning of the column, with its unit or currency if it has one.",
+          "type": "string",
+          "minLength": 1
+        },
+        "allowed": {
+          "description": "The only values the column may hold; generates an `accepted_values` test.",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "references": {
+          "description": "`<entity>.<field>` that every value must exist in; generates a `relationships` test.",
+          "type": "string",
+          "pattern": "^(dim|fact|ref|map|ops)_[a-z0-9_]+\\.[a-z][a-z0-9_]*$"
+        }
+      }
+    }
+  }
+}

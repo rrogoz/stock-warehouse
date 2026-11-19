@@ -1,6 +1,7 @@
 """The pipeline run: steps in order, then publish last (SW-16, ADR-007, ADR-003).
 
-The engine owns the run id, the run log and publish. Later stories append steps to `STEPS`.
+The engine owns the run id, the run log and publish. Later stories put their fetch steps in
+`STEPS` before `dbt`, which stays last (SW-19).
 """
 
 from __future__ import annotations
@@ -18,6 +19,8 @@ from typing import Protocol
 import duckdb
 
 from engine import run_log
+from engine.dbt_step import DbtStep
+from engine.reference import ReferenceStep
 from engine.storage import Config, Storage
 
 log = logging.getLogger("engine")
@@ -32,6 +35,8 @@ class RunContext:
     run_id: str
     connection: duckdb.DuckDBPyConnection
     storage: Storage
+    database_path: Path
+    """The working copy. Steps put scratch files in its folder, which the run deletes."""
 
 
 class Step(Protocol):
@@ -42,7 +47,7 @@ class Step(Protocol):
         ...
 
 
-STEPS: list[Step] = []
+STEPS: list[Step] = [ReferenceStep(), DbtStep()]
 
 
 @dataclass(frozen=True)
@@ -116,7 +121,7 @@ def run_pipeline(cfg: Config, storage: Storage, steps: Sequence[Step]) -> RunRes
             con = duckdb.connect(str(work))
             try:
                 run_log.rebuild(con, storage, run_id)
-                ctx = RunContext(run_id, con, storage)
+                ctx = RunContext(run_id, con, storage, work)
                 for step in steps:
                     step_name = step.name
                     counts[step.name] = step.run(ctx)

@@ -1,5 +1,5 @@
 # Entity config: silver.ops_run_log (SW-16). The engine builds the table's DDL from this file.
-# Schema: arrives with the dbt macros story.
+# Format: config/schemas/entity.schema.json.
 version: 1
 entity: ops_run_log
 layer: silver
@@ -8,6 +8,7 @@ description: >-
   rows each step produced. Rebuilt every run from the insert-only objects under `ops/run_log/`
   in object storage, so a run that never published is recorded too.
 grain: one row per pipeline run
+built_by: engine
 business_key: [run_id]
 scd2: false
 fields:
