@@ -1,0 +1,23 @@
+# dbt project of the warehouse (ADR-006, docs/specs/SW-19.md). The engine runs it in step `dbt`
+# and passes the vars; the defaults below only let `sqlfluff lint dbt` compile.
+name: stock_warehouse
+version: "1.0.0"
+config-version: 2
+profile: stock_warehouse
+
+model-paths: [models]
+macro-paths: [macros]
+
+vars:
+  run_id: not-set
+  reference_dir: not-set
+
+flags:
+  send_anonymous_usage_stats: false
+
+models:
+  stock_warehouse:
+    staging:
+      +materialized: ephemeral
+    silver:
+      +schema: silver

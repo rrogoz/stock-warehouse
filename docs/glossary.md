@@ -15,12 +15,14 @@ Business and project terms, each defined once. Other docs link here instead of r
 | Connector | The source-specific code: `fetch` and `parse`. Everything else is config and the shared engine ([ADR-007](adr/0007-pipeline-engine-and-operations.md)). |
 | Contract | The versioned definition of a silver entity: fields, types, key, rules. Used by tests and external producers. |
 | Current symbol | The symbol an instrument is shown under today; it may change, the permanent code does not. FX: base and quote currency without separator, for example `EURPLN`. |
-| Entity config | The YAML file that defines a silver entity; dbt macros generate its SQL and tests from it. |
+| Entity config | The YAML file in `config/entities/` that defines and documents an entity, validated by [its schema](../config/schemas/entity.schema.json); dbt macros generate its SQL, and `python -m engine.dbt_models` its contract and tests, from it. |
+| Full build | A dbt run with `--full-refresh`: every dbt-built silver table is rebuilt from all its input. Gives the same rows as incremental builds on the same input. |
 | Fixing | An official reference rate published once per day, such as an NBP rate. Stored as `close` with `price_type = fixing`. |
 | Gate | A point where Rafal must approve: spec, ADR or standard change, identity or source switch, release to PROD. |
 | Grain | What one row of an entity means, in one sentence, for example one price per instrument, business date and source. |
+| Incremental build | The normal dbt run: each silver table keeps its rows and gains only input rows newer than its latest version per key, with a new `record_hash`. |
 | Instrument register | The reviewed file [`reference/instrument_register.yaml`](../reference/instrument_register.yaml) that defines every instrument's identity and source identifiers, validated by [its schema](../config/schemas/instrument_register.schema.json). |
-| Known at | When we learned a record: the fetch time of its bronze file, in UTC. Column `known_at` (D13). |
+| Known at | When we learned a record: the fetch time of its bronze file, in UTC; for reference entities, midnight UTC of the reference file's `recorded_date` ([data-modelling standard](standards/data-modelling.md#rules)). Column `known_at` (D13). |
 | Permanent code | An instrument's identity, assigned once and never changed or reused, for example `FX.EURPLN` ([ADR-004](adr/0004-physical-data-model.md)). |
 | Pointer | The object `warehouse/current.json` that names the published database file. Written last in a run, so an interrupted run leaves the old version current; restoring means pointing it back ([ADR-003](adr/0003-storage-and-physical-format.md), [runbook](runbooks/run-the-pipeline.md)). |
 | Point in time | Data shown as it was known at a past moment, with nothing learned later (D11, D13). |
@@ -38,6 +40,6 @@ Business and project terms, each defined once. Other docs link here instead of r
 | Source identifier | A source's own identifier for an instrument, mapped to its permanent code in the instrument register, for example NBP `A/EUR` for `FX.EURPLN`. Field `source_instrument_id`. |
 | Source config | The YAML file that holds everything about a source except fetch and parse. |
 | Spec | A story's technical specification in `docs/specs/`; frozen after merge. |
-| Staging | dbt models per source between bronze and silver: rename, cast, register lookup and quarantine, generated from the source config. |
+| Staging | dbt models per source between bronze and silver: rename, cast, register lookup and quarantine, generated from the source config. Reference data has no source config, so its staging models (`dbt/models/staging/reference/`) are hand-written, the custom-model escape hatch of [ADR-007](adr/0007-pipeline-engine-and-operations.md). |
 | Supervised mode | M1 rule: Rafal approves every pull request ([ADR-011](adr/0011-agent-orchestration.md)). |
 | Trading calendar | The reviewed list of sessions of `XWAR` or `NBP` for one year: a file in [`reference/calendars/`](../reference/calendars/) validated by [its schema](../config/schemas/trading_calendar.schema.json). Sessions are the weekdays of the year minus its closures. |

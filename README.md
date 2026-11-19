@@ -37,6 +37,8 @@ python3 .github/scripts/check_docs.py          # links, template sections, ADR s
 python3 .github/scripts/check_no_real_data.py  # no data files in the repository
 ```
 
+After changing a file in `config/entities/`, regenerate the dbt models with `uv run python -m engine.dbt_models`.
+
 Run the pipeline on a local folder (`SW_STORAGE_BACKEND=local` in `.env`; data goes to the gitignored `data/`). The last line is `run <run_id> <status>`; exit code 0 means published, 1 a failed step or publish, 2 bad configuration ([run the pipeline](docs/runbooks/run-the-pipeline.md)):
 
 ```sh

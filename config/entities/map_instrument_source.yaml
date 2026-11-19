@@ -1,0 +1,45 @@
+# Entity config: silver.map_instrument_source (SW-19). Format: config/schemas/entity.schema.json.
+# dbt model and tests are generated from this file: `uv run python -m engine.dbt_models`.
+version: 1
+entity: map_instrument_source
+layer: silver
+description: >-
+  Every version of the identifier each source uses for an instrument, as the instrument register
+  records them (`reference/instrument_register.yaml`, `source_ids`). Lineage: register, step
+  `reference`, staging model `stg_reference__instrument_source_ids`. Staging of a source uses it
+  to turn the source's identifier into the permanent code.
+grain: one version of a source's identifier for an instrument, per instrument, source and valid-from date
+built_by: dbt
+input: stg_reference__instrument_source_ids
+business_key: [instrument_code, source]
+scd2: true
+fields:
+  - name: instrument_code
+    type: varchar
+    required: true
+    references: dim_instrument.instrument_code
+    description: Permanent code of the instrument, for example `FX.EURPLN`. Business key.
+  - name: source
+    type: varchar
+    required: true
+    description: Source name, as in its source config, for example `nbp`. Business key.
+  - name: valid_from_date
+    type: date
+    required: true
+    description: First date the source uses this identifier. The business date of the entity (SCD2).
+  - name: source_instrument_id
+    type: varchar
+    required: true
+    description: The source's own identifier; NBP, table and code, for example `A/EUR`.
+  - name: known_at
+    type: timestamptz
+    required: true
+    description: Midnight UTC of the identifier's `recorded_date` in the register. Reference data has no bronze, so this replaces the fetch time.
+  - name: run_id
+    type: varchar
+    required: true
+    description: Id of the run that inserted the row (`ops_run_log.run_id`).
+  - name: record_hash
+    type: varchar
+    required: true
+    description: md5 of the value field `source_instrument_id` as text, null as `\N`. A version is inserted only when it differs from the previous one.

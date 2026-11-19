@@ -6,6 +6,8 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "boto3>=1.44.4",
+    "dbt-core>=1.12.7",
+    "dbt-duckdb>=1.11.1",
     "duckdb>=2.0.0",
     "pyyaml>=6.0.3",
 ]
@@ -22,6 +24,7 @@ dev = [
     "pyyaml>=6.0.3",
     "ruff>=0.8",
     "sqlfluff>=3.2",
+    "sqlfluff-templater-dbt>=4.5.0",
     "types-jsonschema>=4.26.0.20261006",
     "types-pyyaml>=6.0.12.20261103",
 ]
@@ -55,12 +58,20 @@ addopts = "-ra --strict-markers"
 
 [tool.sqlfluff.core]
 dialect = "duckdb"
-# Switch to the dbt templater once the dbt project lands (M1).
-templater = "jinja"
+# The dbt templater compiles each model with dbt (lint target in dbt/profiles.yml, SW-19).
+templater = "dbt"
 max_line_length = 100
+
+[tool.sqlfluff.templater.dbt]
+project_dir = "dbt"
+profiles_dir = "dbt"
 
 [tool.sqlfluff.rules.capitalisation.keywords]
 capitalisation_policy = "lower"
+
+[tool.sqlfluff.rules.references.keywords]
+# `source` is a standard business column (docs/standards/naming.md), also a SQL keyword.
+ignore_words = "source"
 
 [[tool.mypy.overrides]]
 # exchange_calendars ships no type hints.

@@ -1,0 +1,27 @@
+# Synthetic instrument register, state 1 (SW-19): two instruments, one version each.
+version: 1
+instruments:
+  FX.AAAPLN:
+    versions:
+      - valid_from_date: "2020-01-02"
+        recorded_date: "2026-01-05"
+        current_symbol: AAAPLN
+        asset_class: fx
+        quote_ccy: PLN
+    source_ids:
+      - source: nbp
+        source_instrument_id: A/AAA
+        valid_from_date: "2020-01-02"
+        recorded_date: "2026-01-05"
+  FX.BBBPLN:
+    versions:
+      - valid_from_date: "2020-01-02"
+        recorded_date: "2026-01-05"
+        current_symbol: BBBPLN
+        asset_class: fx
+        quote_ccy: PLN
+    source_ids:
+      - source: nbp
+        source_instrument_id: A/BBB
+        valid_from_date: "2020-01-02"
+        recorded_date: "2026-01-05"

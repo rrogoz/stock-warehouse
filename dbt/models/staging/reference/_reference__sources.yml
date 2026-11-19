@@ -1,0 +1,18 @@
+# Reference files the engine's step `reference` writes into the run folder (src/engine/reference.py).
+# Not sources in the ADR-005 sense: no source config and no bronze (docs/specs/SW-19.md).
+version: 2
+
+sources:
+  - name: reference
+    description: Newline-delimited JSON flattened from reference/instrument_register.yaml, one run's copy.
+    tables:
+      - name: instrument_versions
+        description: One row per attribute version of an instrument.
+        config:
+          meta:
+            external_location: "read_json('{{ var('reference_dir') }}/instrument_versions.jsonl', format = 'newline_delimited')"
+      - name: instrument_source_ids
+        description: One row per source identifier version of an instrument.
+        config:
+          meta:
+            external_location: "read_json('{{ var('reference_dir') }}/instrument_source_ids.jsonl', format = 'newline_delimited')"

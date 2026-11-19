@@ -1,0 +1,9 @@
+# Lint target only, for the SQLFluff dbt templater. The engine writes the real profile into
+# the run folder, pointing at the working copy (src/engine/dbt_step.py).
+stock_warehouse:
+  target: lint
+  outputs:
+    lint:
+      type: duckdb
+      path: ":memory:"
+      threads: 1
