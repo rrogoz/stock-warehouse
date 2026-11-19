@@ -22,7 +22,7 @@ Business and project terms, each defined once. Other docs link here instead of r
 | Grain | What one row of an entity means, in one sentence, for example one price per instrument, business date and source. |
 | Incremental build | The normal dbt run: each silver table keeps its rows and gains only input rows newer than its latest version per key, with a new `record_hash`. |
 | Instrument register | The reviewed file [`reference/instrument_register.yaml`](../reference/instrument_register.yaml) that defines every instrument's identity and source identifiers, validated by [its schema](../config/schemas/instrument_register.schema.json). |
-| Known at | When we learned a record: the fetch time of its bronze file, in UTC. Column `known_at` (D13). |
+| Known at | When we learned a record: the fetch time of its bronze file, in UTC; for reference entities, midnight UTC of the reference file's `recorded_date` ([data-modelling standard](standards/data-modelling.md#rules)). Column `known_at` (D13). |
 | Permanent code | An instrument's identity, assigned once and never changed or reused, for example `FX.EURPLN` ([ADR-004](adr/0004-physical-data-model.md)). |
 | Pointer | The object `warehouse/current.json` that names the published database file. Written last in a run, so an interrupted run leaves the old version current; restoring means pointing it back ([ADR-003](adr/0003-storage-and-physical-format.md), [runbook](runbooks/run-the-pipeline.md)). |
 | Point in time | Data shown as it was known at a past moment, with nothing learned later (D11, D13). |
