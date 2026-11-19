@@ -135,6 +135,9 @@ def run_pipeline(cfg: Config, storage: Storage, steps: Sequence[Step]) -> RunRes
                     image_tag=cfg.image_tag,
                     step_row_counts=counts,
                 )
+                # Write the WAL into the file: dbt keeps its own handle on the database open,
+                # so closing this connection alone leaves the changes in `working.duckdb.wal`.
+                con.execute("checkpoint")
             finally:
                 con.close()
             key = f"{DATABASE_PREFIX}{ended_at.strftime('%Y%m%dT%H%M%SZ')}_{run_id}.duckdb"
